@@ -2,12 +2,33 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="true">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Automata Console">
+  <meta name="theme-color" content="#0f172a">
   <title>Regex Automata Pipeline Visualizer</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* Prevent iOS zoom on input focus */
+    @media (max-width: 1024px) {
+      input, select, textarea {
+        font-size: 16px !important;
+      }
+    }
+    
+    /* Handle notch on iPad Pro */
+    @supports (padding: max(0px)) {
+      .app-shell {
+        padding-left: max(24px, env(safe-area-inset-left));
+        padding-right: max(24px, env(safe-area-inset-right));
+        padding-bottom: max(36px, env(safe-area-inset-bottom));
+      }
+    }
+  </style>
 </head>
 <body>
   <div class="ambient ambient-a"></div>
