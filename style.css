@@ -323,7 +323,9 @@ input {
   gap: 8px;
 }
 
-.field input {
+.field input,
+.field select,
+.field textarea {
   width: 100%;
   min-height: 44px;
   padding: 15px 16px;
@@ -336,9 +338,33 @@ input {
   transition: border-color var(--ease), box-shadow var(--ease), transform var(--ease), background var(--ease);
   -webkit-appearance: none;
   appearance: none;
+  font-family: inherit;
+  font-size: inherit;
 }
 
-.field input:focus {
+.field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2398aead' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+  cursor: pointer;
+}
+
+.field select::-webkit-outer-spin-button,
+.field select::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.field select option {
+  background: #0f172a;
+  color: #f3fbfb;
+  padding: 10px;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
   border-color: rgba(34, 211, 238, 0.5);
   box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.08), 0 14px 28px rgba(34, 211, 238, 0.08);
   transform: translateY(-2px);
@@ -1201,6 +1227,13 @@ th {
   .right-rail {
     grid-column: 1 / -1;
   }
+
+  .field input,
+  .field select,
+  .field textarea {
+    font-size: 16px;
+    min-height: 48px;
+  }
 }
 
 /* iPad Air & Medium Tablets (768px - 1024px) */
@@ -1292,6 +1325,11 @@ th {
   .action-btn,
   .stepper-btn {
     padding: 13px 14px;
+    font-size: 0.95rem;
+  }
+
+  .field select {
+    padding: 13px 40px 13px 14px;
     font-size: 0.95rem;
   }
 
@@ -1396,6 +1434,12 @@ th {
   .stepper-btn,
   .sim-control {
     padding: 12px 12px;
+    font-size: 0.95rem;
+    border-radius: 12px;
+  }
+
+  .field select {
+    padding: 12px 40px 12px 12px;
     font-size: 0.95rem;
     border-radius: 12px;
   }
@@ -1556,6 +1600,12 @@ th {
   .stepper-btn,
   .example-pill {
     padding: 11px 12px;
+    font-size: 0.9rem;
+    border-radius: 11px;
+  }
+
+  .field select {
+    padding: 11px 40px 11px 12px;
     font-size: 0.9rem;
     border-radius: 11px;
   }
