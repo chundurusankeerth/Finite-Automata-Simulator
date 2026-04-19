@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Regex Automata Pipeline Visualizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="ambient ambient-a"></div>
+  <div class="ambient ambient-b"></div>
+  <div class="grid-overlay"></div>
+
+  <main class="app-shell">
+    <header class="topbar glass">
+      <div>
+        <h1>Automata Workflow Console</h1>
+      </div>
+      <div class="status-strip">
+        <div class="status-block">
+          <span class="status-label">Alphabet</span>
+          <strong id="alphabet-value">-</strong>
+        </div>
+        <div class="status-block">
+          <span class="status-label">Simulation</span>
+          <strong id="simulation-badge">Waiting</strong>
+        </div>
+        <div class="status-block">
+          <span class="status-label">Equivalence</span>
+          <strong id="equivalence-badge">Not checked</strong>
+        </div>
+      </div>
+    </header>
+
+    <nav class="pipeline-nav glass" id="pipeline-nav">
+      <button type="button" class="pipeline-step active" data-stage-target="0">
+        <span>01</span>
+        <strong>Regex</strong>
+      </button>
+      <button type="button" class="pipeline-step" data-stage-target="1">
+        <span>02</span>
+        <strong>NFA</strong>
+      </button>
+      <button type="button" class="pipeline-step" data-stage-target="2">
+        <span>03</span>
+        <strong>DFA</strong>
+      </button>
+      <button type="button" class="pipeline-step" data-stage-target="3">
+        <span>04</span>
+        <strong>Min-DFA</strong>
+      </button>
+      <button type="button" class="pipeline-step" data-stage-target="4">
+        <span>05</span>
+        <strong>Equivalence</strong>
+      </button>
+      <button type="button" class="pipeline-step" data-stage-target="5">
+        <span>06</span>
+        <strong>Simulation</strong>
+      </button>
+      <div class="pipeline-progress">
+        <div class="pipeline-progress-bar" id="pipeline-progress-bar"></div>
+      </div>
+    </nav>
+
+    <section class="workspace">
+      <aside class="left-rail glass">
+        <form id="automata-form" class="control-form">
+          <div class="sidebar-section">
+            <div class="section-head">
+              <span class="section-kicker">Regex Input</span>
+              <h2>Build Your Machine</h2>
+            </div>
+
+            <label class="field">
+              <span class="field-label">Regular Expression</span>
+              <input id="regex-input" type="text" value="(a|b)*abb" placeholder="Example: (a|b)*abb">
+            </label>
+
+            <label class="field">
+              <span class="field-label">Test String</span>
+              <input id="string-input" type="text" value="aabb" placeholder="Example: aabb">
+            </label>
+          </div>
+
+          <div class="sidebar-section">
+            <div class="section-head">
+              <span class="section-kicker">Quick Examples</span>
+              <h3>Preset Regexes</h3>
+            </div>
+            <div class="example-pills">
+              <button type="button" class="example-pill" data-regex-example="(a|b)*abb" data-string-example="aabb">(a|b)*abb</button>
+              <button type="button" class="example-pill" data-regex-example="a*b(a|b)" data-string-example="aab">(a)*b(a|b)</button>
+              <button type="button" class="example-pill" data-regex-example="ab?c+" data-string-example="abcc">ab?c+</button>
+              <button type="button" class="example-pill" data-regex-example="(0|1)*101" data-string-example="1101">(0|1)*101</button>
+            </div>
+          </div>
+
+          <div class="sidebar-section">
+            <div class="section-head">
+              <span class="section-kicker">Pipeline Actions</span>
+              <h3>Stage Commands</h3>
+            </div>
+            <div class="action-stack">
+              <button id="generate-btn" type="submit" class="action-btn action-btn-primary">Generate NFA</button>
+              <button type="button" class="action-btn" data-stage-jump="2">Convert to DFA</button>
+              <button type="button" class="action-btn" data-stage-jump="3">Minimize DFA</button>
+              <button type="button" class="action-btn" data-stage-jump="4">Run Equivalence Check</button>
+              <button type="button" class="action-btn" data-stage-jump="5">Simulate String</button>
+            </div>
+          </div>
+
+          <div class="sidebar-section">
+            <div class="section-head">
+              <span class="section-kicker">Stage Navigation</span>
+              <h3>Previous / Next</h3>
+            </div>
+            <div class="step-controls">
+              <button type="button" class="stepper-btn" id="prev-stage-btn">Previous</button>
+              <button type="button" class="stepper-btn" id="next-stage-btn">Next</button>
+            </div>
+            <p class="hint">Supported operators: <code>|</code>, implicit concatenation, <code>*</code>, <code>+</code>, <code>?</code>, parentheses</p>
+          </div>
+        </form>
+      </aside>
+
+      <section class="main-column">
+        <div class="canvas-shell glass">
+          <div class="canvas-head">
+            <div>
+              <span class="section-kicker">Primary Visualization</span>
+              <h2 id="canvas-stage-title">Regex</h2>
+            </div>
+            <div class="canvas-badge" id="canvas-stage-badge">Input Expression</div>
+          </div>
+
+          <div class="canvas-grid"></div>
+
+          <div class="stage-stack">
+            <article class="stage-sheet stage-regex active" data-stage="0">
+              <div id="regex-panel" class="stage-content"></div>
+            </article>
+            <article class="stage-sheet stage-nfa" data-stage="1">
+              <div id="nfa-panel" class="stage-content"></div>
+            </article>
+            <article class="stage-sheet stage-dfa" data-stage="2">
+              <div id="dfa-panel" class="stage-content"></div>
+            </article>
+            <article class="stage-sheet stage-min" data-stage="3">
+              <div id="min-panel" class="stage-content"></div>
+            </article>
+            <article class="stage-sheet stage-eq" data-stage="4">
+              <div id="eq-panel" class="stage-content"></div>
+            </article>
+            <article class="stage-sheet stage-sim" data-stage="5">
+              <div id="sim-panel" class="stage-content"></div>
+            </article>
+          </div>
+        </div>
+
+        <div class="simulation-dock glass">
+          <div class="dock-head">
+            <span class="section-kicker">String Simulation Results</span>
+            <h2>Execution Dock</h2>
+          </div>
+          <div id="simulation-dock-content" class="dock-content"></div>
+        </div>
+      </section>
+
+      <aside class="right-rail glass">
+        <div class="sidebar-section">
+          <div class="section-head">
+            <span class="section-kicker">Machine Details</span>
+            <h2>Inspector</h2>
+          </div>
+          <div class="details-grid">
+            <div class="detail-box">
+              <span class="field-label">Current Stage</span>
+              <strong id="detail-stage">Regex</strong>
+            </div>
+            <div class="detail-box">
+              <span class="field-label">States</span>
+              <strong id="detail-states">-</strong>
+            </div>
+            <div class="detail-box">
+              <span class="field-label">Transitions</span>
+              <strong id="detail-transitions">-</strong>
+            </div>
+            <div class="detail-box">
+              <span class="field-label">Result</span>
+              <strong id="detail-result">Waiting</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="section-head">
+            <span class="section-kicker">Stage Notes</span>
+            <h3 id="detail-heading">Regex overview</h3>
+          </div>
+          <div id="detail-body" class="inspector-body"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="section-head">
+            <span class="section-kicker">Equivalence Table</span>
+            <h3>DFA vs Min-DFA</h3>
+          </div>
+          <div id="inspector-eq-table" class="table-wrap compact-table"></div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
