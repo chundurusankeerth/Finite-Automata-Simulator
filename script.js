@@ -1363,6 +1363,12 @@ function stateMarkup({ id, transitions, isAccept, isStart, description = "" }) {
 function renderGraph(nodes, edges) {
   const width = 720;
   const height = 420;
+  const nodeRadius = 28;
+  const arrowDepth = 12;
+  const edgeOffset = nodeRadius + arrowDepth - 2;
+  const markerSuffix = `graph-${Math.random().toString(36).slice(2, 10)}`;
+  const defaultMarkerId = `${markerSuffix}-arrowhead`;
+  const startMarkerId = `${markerSuffix}-arrowhead-start`;
   const positions = computeForceDirectedLayout(nodes, edges, width, height);
 
   const edgeGroups = new Map();
@@ -1387,11 +1393,11 @@ function renderGraph(nodes, edges) {
         const dx = to.x - from.x;
         const dy = to.y - from.y;
         const distance = Math.max(Math.sqrt(dx * dx + dy * dy), 1);
-        const endX = to.x - (dx / distance) * 36;
-        const endY = to.y - (dy / distance) * 36;
+        const endX = to.x - (dx / distance) * (nodeRadius + arrowDepth + 4);
+        const endY = to.y - (dy / distance) * (nodeRadius + arrowDepth + 4);
         return `
           <g class="graph-edge graph-start-edge">
-            <path marker-end="url(#graph-arrowhead-start)" d="M ${from.x} ${from.y} L ${endX} ${endY}" />
+            <path marker-end="url(#${startMarkerId})" d="M ${from.x} ${from.y} L ${endX} ${endY}" />
           </g>
         `;
       }
@@ -1401,7 +1407,7 @@ function renderGraph(nodes, edges) {
         const loopY = from.y - 44;
         return `
           <g class="graph-edge self-loop">
-            <path marker-end="url(#graph-arrowhead)" d="M ${from.x - 18} ${from.y - 18} C ${from.x - 52} ${from.y - 78}, ${from.x + 52} ${from.y - 78}, ${from.x + 18} ${from.y - 18}" />
+            <path marker-end="url(#${defaultMarkerId})" d="M ${from.x - 20} ${from.y - 14} C ${from.x - 56} ${from.y - 86}, ${from.x + 56} ${from.y - 86}, ${from.x + 20} ${from.y - 14}" />
             <text class="graph-edge-label" x="${loopX}" y="${loopY}" text-anchor="middle">${escapeHtml(edge.symbol)}</text>
           </g>
         `;
@@ -1410,11 +1416,10 @@ function renderGraph(nodes, edges) {
       const dx = to.x - from.x;
       const dy = to.y - from.y;
       const distance = Math.sqrt(dx * dx + dy * dy) || 1;
-      const offset = 28;
-      const startX = from.x + (dx / distance) * offset;
-      const startY = from.y + (dy / distance) * offset;
-      const endX = to.x - (dx / distance) * offset;
-      const endY = to.y - (dy / distance) * offset;
+      const startX = from.x + (dx / distance) * nodeRadius;
+      const startY = from.y + (dy / distance) * nodeRadius;
+      const endX = to.x - (dx / distance) * edgeOffset;
+      const endY = to.y - (dy / distance) * edgeOffset;
       const group = edgeGroups.get(`${edge.from}->${edge.to}`) || [edge];
       const groupIndex = group.indexOf(edge);
       const groupCenterOffset = groupIndex - (group.length - 1) / 2;
@@ -1426,7 +1431,7 @@ function renderGraph(nodes, edges) {
 
       return `
         <g class="graph-edge">
-          <path marker-end="url(#graph-arrowhead)" d="M ${startX} ${startY} Q ${midX} ${midY} ${endX} ${endY}" />
+          <path marker-end="url(#${defaultMarkerId})" d="M ${startX} ${startY} Q ${midX} ${midY} ${endX} ${endY}" />
           <text class="graph-edge-label" x="${midX}" y="${midY - 8}" text-anchor="middle">${escapeHtml(edge.symbol)}</text>
         </g>
       `;
@@ -1451,10 +1456,10 @@ function renderGraph(nodes, edges) {
     <div class="graph-shell">
       <svg viewBox="0 0 ${width} ${height}" class="automaton-graph" role="img" aria-label="Automaton graph">
         <defs>
-          <marker id="graph-arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3.5" orient="auto">
+          <marker id="${defaultMarkerId}" markerWidth="12" markerHeight="12" refX="10.5" refY="4" orient="auto" markerUnits="userSpaceOnUse">
             <polygon points="0 0, 10 3.5, 0 7" class="graph-arrow"></polygon>
           </marker>
-          <marker id="graph-arrowhead-start" markerWidth="10" markerHeight="10" refX="9" refY="3.5" orient="auto">
+          <marker id="${startMarkerId}" markerWidth="12" markerHeight="12" refX="10.5" refY="4" orient="auto" markerUnits="userSpaceOnUse">
             <polygon points="0 0, 10 3.5, 0 7" class="graph-arrow graph-arrow-start"></polygon>
           </marker>
         </defs>
